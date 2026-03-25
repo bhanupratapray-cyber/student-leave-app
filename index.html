@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Leave Manager</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        select, input, button { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { background-color: #007BFF; color: white; border: none; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <h2>Log Student Leave</h2>
+    
+    <form id="leaveForm">
+        <div class="form-group">
+            <label for="student">Select Student:</label>
+            <select id="student" name="student" required>
+                <option value="" disabled selected>Select a student...</option>
+                
+                <option value="ABHAY SINGH|0706PY231001">ABHAY SINGH (0706PY231001)</option>
+                <option value="ADITYA PRAJAPATI|0706PY231004">ADITYA PRAJAPATI (0706PY231004)</option>
+                <option value="AJIT|0706PY231005">AJIT (0706PY231005)</option>
+                <option value="AKSHIKA SANVANIYA|0706PY231007">AKSHIKA SANVANIYA (0706PY231007)</option>
+                <option value="AMTULLAH BOHRA|0706PY231008">AMTULLAH BOHRA (0706PY231008)</option>
+                <option value="ANKIT KUMAR|0706PY231009">ANKIT KUMAR (0706PY231009)</option>
+                <option value="ASHA GAYARI|0706PY231011">ASHA GAYARI (0706PY231011)</option>
+                <option value="ASHISH MEENA|0706PY231012">ASHISH MEENA (0706PY231012)</option>
+                <option value="ASHISH PRAJAPAT|0706PY231013">ASHISH PRAJAPAT (0706PY231013)</option>
+                <option value="AYUSH|0706PY231014">AYUSH (0706PY231014)</option>
+                <option value="AYUSH PATIDAR|0706PY231015">AYUSH PATIDAR (0706PY231015)</option>
+                <option value="BAHAR|0706PY231016">BAHAR (0706PY231016)</option>
+                <option value="BALLABH PATIDAR|0706PY231017">BALLABH PATIDAR (0706PY231017)</option>
+                <option value="BANTI|0706PY231018">BANTI (0706PY231018)</option>
+                <option value="BHAVESH PATIDAR|0706PY231020">BHAVESH PATIDAR (0706PY231020)</option>
+                <option value="BHERU LAL DANGI|0706PY231021">BHERU LAL DANGI (0706PY231021)</option>
+                <option value="BHUMIKA PATIDAR|0706PY231022">BHUMIKA PATIDAR (0706PY231022)</option>
+                <option value="CHETAN GAYRI|0706PY231023">CHETAN GAYRI (0706PY231023)</option>
+                <option value="DEEPAK KUMAR|0706PY231026">DEEPAK KUMAR (0706PY231026)</option>
+                <option value="DEVESH MALI|0706PY231027">DEVESH MALI (0706PY231027)</option>
+                <option value="DHRUV WADHWA|0706PY231029">DHRUV WADHWA (0706PY231029)</option>
+                <option value="DIMPLE GURJAR|0706PY231030">DIMPLE GURJAR (0706PY231030)</option>
+                <option value="GOURAV KUMAR|0706PY231031">GOURAV KUMAR (0706PY231031)</option>
+                <option value="GOUTAM BAIRAGI|0706PY231032">GOUTAM BAIRAGI (0706PY231032)</option>
+                <option value="HARIOM GIRI|0706PY231034">HARIOM GIRI (0706PY231034)</option>
+                <option value="HARISH KUMAR PATIDAR|0706PY231035">HARISH KUMAR PATIDAR (0706PY231035)</option>
+                <option value="JATIN PATIDAR|0706PY231037">JATIN PATIDAR (0706PY231037)</option>
+                <option value="JITENDRA PARETA|0706PY231039">JITENDRA PARETA (0706PY231039)</option>
+                <option value="KAILASH CHAND|0706PY231040">KAILASH CHAND (0706PY231040)</option>
+                <option value="KAPIL|0706PY231043">KAPIL (0706PY231043)</option>
+                <option value="KAPIL SEN|0706PY231044">KAPIL SEN (0706PY231044)</option>
+                <option value="KASHISH BHATI|0706PY231045">KASHISH BHATI (0706PY231045)</option>
+                <option value="KHUSHAL RATHOR|0706PY231046">KHUSHAL RATHOR (0706PY231046)</option>
+                <option value="KOMAL PRAJAPATI|0706PY231047">KOMAL PRAJAPATI (0706PY231047)</option>
+                <option value="LAXMAN SINGH|0706PY231050">LAXMAN SINGH (0706PY231050)</option>
+                <option value="MANTHAN SHARMA|0706PY231052">MANTHAN SHARMA (0706PY231052)</option>
+                <option value="MOHIT MALVIYA|0706PY231055">MOHIT MALVIYA (0706PY231055)</option>
+                <option value="MUSKAN|0706PY231056">MUSKAN (0706PY231056)</option>
+                <option value="NAITIK KUMAR|0706PY231057">NAITIK KUMAR (0706PY231057)</option>
+                <option value="NAVEEN MEENA|0706PY231059">NAVEEN MEENA (0706PY231059)</option>
+                <option value="NIKITA MEWADA|0706PY231060">NIKITA MEWADA (0706PY231060)</option>
+                <option value="NISHA|0706PY231061">NISHA (0706PY231061)</option>
+                <option value="PIYUSH PORWAL|0706PY231064">PIYUSH PORWAL (0706PY231064)</option>
+                <option value="POOJA BHARTONIYA|0706PY231065">POOJA BHARTONIYA (0706PY231065)</option>
+                <option value="PRADEEP SINGH|0706PY231067">PRADEEP SINGH (0706PY231067)</option>
+                <option value="PRITAM PRAJAPAT|0706PY231069">PRITAM PRAJAPAT (0706PY231069)</option>
+                <option value="RADHIKA KUNWAR|0706PY231073">RADHIKA KUNWAR (0706PY231073)</option>
+                <option value="RAHUL KUMAR|0706PY231075">RAHUL KUMAR (0706PY231075)</option>
+                <option value="RAJPAL SINGH|0706PY231076">RAJPAL SINGH (0706PY231076)</option>
+                <option value="RAJVARDHAN SINGH HADA|0706PY231077">RAJVARDHAN SINGH HADA (0706PY231077)</option>
+                <option value="RANU PATIDAR|0706PY231078">RANU PATIDAR (0706PY231078)</option>
+                <option value="RAVINDRA KUMAR|0706PY231081">RAVINDRA KUMAR (0706PY231081)</option>
+                <option value="SAMRATH PATIDAR|0706PY231086">SAMRATH PATIDAR (0706PY231086)</option>
+                <option value="SHUBHAM MALAV|0706PY231089">SHUBHAM MALAV (0706PY231089)</option>
+                <option value="SRISHTI PANCHAL|0706PY231090">SRISHTI PANCHAL (0706PY231090)</option>
+                <option value="SUMIT MEHAR|0706PY231091">SUMIT MEHAR (0706PY231091)</option>
+                <option value="SURAJ SINGH SOLANKI|0706PY231093">SURAJ SINGH SOLANKI (0706PY231093)</option>
+                <option value="SURENDRA SINGH|0706PY231094">SURENDRA SINGH (0706PY231094)</option>
+                <option value="TIKAM SINGH|0706PY231095">TIKAM SINGH (0706PY231095)</option>
+                <option value="VARSHA|0706PY231096">VARSHA (0706PY231096)</option>
+                <option value="VISHAL KUMAR DANGI|0706PY231098">VISHAL KUMAR DANGI (0706PY231098)</option>
+                <option value="YASH NAMDEV|0706PY231100">YASH NAMDEV (0706PY231100)</option>
+                <option value="PRAKASH DHAKAD|0706PY221063">PRAKASH DHAKAD (0706PY221063)</option>
+                <option value="SURYA PRATAP|0706PY221087">SURYA PRATAP (0706PY221087)</option>
+                
+                </select>
+        </div>
+
+        <div class="form-group">
+            <label for="startDate">Leave Start Date:</label>
+            <input type="date" id="startDate" name="startDate" required>
+        </div>
+
+        <div class="form-group">
+            <label for="endDate">Leave End Date:</label>
+            <input type="date" id="endDate" name="endDate" required>
+        </div>
+
+        <button type="submit">Submit Leave</button>
+    </form>
+
+    <script>
+        document.getElementById('leaveForm').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            
+            // This splits the "Name|EnrollmentNumber" value from the dropdown
+            const studentData = document.getElementById('student').value.split('|');
+            const studentName = studentData[0];
+            const enrollmentNo = studentData[1];
+            
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            // Your live Google Apps Script URL
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwb8MN_s2XrDWZyhyXQKcxuZo9MRIj_r0OGoLPMgqLhjOrWmuz3Il_LdSkVJAvaGz5ZEQ/exec';
+            
+            const formData = new URLSearchParams();
+            formData.append('studentName', studentName);
+            formData.append('enrollmentNo', enrollmentNo);
+            formData.append('startDate', startDate);
+            formData.append('endDate', endDate);
+
+           // Send the data to Google Sheets
+            fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' })
+                .then(response => {
+                    alert('Leave recorded successfully!');
+                    document.getElementById('leaveForm').reset();
+                })
+                .catch(error => console.error('Error!', error.message));
+        });
+    </script>
+</body>
+</html>
