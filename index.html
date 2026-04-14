@@ -31,7 +31,6 @@
         .nav-btn:hover { background-color: #f9fafb; color: var(--primary); }
         .nav-btn.active { background-color: #eff6ff; color: var(--primary); border-left: 4px solid var(--secondary); font-weight: 500; }
 
-        /* Desktop Sidebar Minimizing */
         .sidebar.minimized { margin-left: -280px; }
 
         /* --- Main Content Area --- */
@@ -41,12 +40,21 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Top Bar with Menu Button */
+        /* Top Bar */
         .top-bar { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
         .menu-btn { background: white; border: 1px solid #d1d5db; color: var(--text-dark); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; }
         .menu-btn:hover { background: #f9fafb; color: var(--primary); }
 
-        /* --- Matchbox / Folder Grid Styling --- */
+        /* Controls Section (Sorting & Refresh) */
+        .controls-container { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .sort-box { display: flex; align-items: center; gap: 10px; flex: 1; }
+        .sort-box label { margin: 0; font-weight: 500; font-size: 14px; color: var(--text-dark); white-space: nowrap; }
+        .sort-select { padding: 8px 12px; border-radius: 6px; border: 1px solid #d1d5db; font-family: 'Poppins', sans-serif; font-size: 14px; width: 100%; max-width: 250px; outline: none; }
+        .sort-select:focus { border-color: var(--secondary); }
+        .refresh-btn { background: var(--secondary); color: white; border: none; padding: 9px 20px; border-radius: 6px; cursor: pointer; font-family: 'Poppins', sans-serif; font-size: 14px; font-weight: 500; transition: 0.2s; white-space: nowrap; }
+        .refresh-btn:hover { background: #2563eb; }
+
+        /* --- Matchbox Grid Styling --- */
         .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
         
         .matchbox-card { background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid var(--secondary); cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
@@ -80,35 +88,28 @@
         .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--secondary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Background overlay for mobile menu */
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 90; }
 
         /* ==========================================
            📱 MOBILE SPECIFIC OPTIMIZATIONS
            ========================================== */
         @media (max-width: 768px) {
-            /* 1. Sidebar becomes an overlay slider */
             .sidebar { position: fixed; height: 100vh; left: -280px; margin-left: 0; box-shadow: 10px 0 15px rgba(0,0,0,0.1); }
             .sidebar.mobile-open { left: 0; }
             .sidebar-overlay.active { display: block; }
             
             .main-content { padding: 15px; }
-            .top-bar { margin-bottom: 15px; }
-
-            /* 2. Force Matchboxes to 2 per row */
-            .grid-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .controls-container { flex-direction: column; align-items: stretch; }
+            .sort-select { max-width: 100%; }
             
-            /* Shrink padding and text to fit 2 boxes properly */
+            .grid-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .matchbox-card { padding: 12px; }
             .matchbox-header h3 { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
             .matchbox-header .enrollment { font-size: 10px; margin-bottom: 8px; }
             .days-badge { font-size: 10px; padding: 3px 6px; margin-bottom: 5px; }
             .entry-header { font-size: 9px; }
             .date-row { font-size: 10px; flex-direction: column; margin-bottom: 6px; }
-            .click-hint { display: none; } /* Hide hint to save space */
-            
-            /* Form adjustments */
-            .form-container { padding: 20px; }
+            .click-hint { display: none; }
         }
     </style>
 </head>
@@ -227,8 +228,19 @@
         </div>
 
         <div id="records" class="view-section">
-            <div style="margin-bottom: 20px;">
-                <button onclick="fetchRecords()" style="background: white; border: 1px solid #d1d5db; padding: 8px 15px; border-radius: 6px; cursor: pointer; width: 100%; font-family: 'Poppins', sans-serif;"><i class="fas fa-sync-alt"></i> Refresh Data</button>
+            
+            <div class="controls-container">
+                <div class="sort-box">
+                    <label for="sortSelector"><i class="fas fa-filter"></i> Sort By:</label>
+                    <select id="sortSelector" class="sort-select" onchange="renderUI()">
+                        <option value="nameAsc">Name (A to Z)</option>
+                        <option value="nameDesc">Name (Z to A)</option>
+                        <option value="enrollment">Enrollment Number</option>
+                        <option value="leavesHigh">Total Leaves (High to Low)</option>
+                        <option value="leavesLow">Total Leaves (Low to High)</option>
+                    </select>
+                </div>
+                <button onclick="fetchRecords()" class="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh</button>
             </div>
 
             <div id="loader" class="loader">
@@ -245,18 +257,18 @@
     <script>
         // Your active Google Apps Script Web App URL
         const scriptURL = 'https://script.google.com/macros/s/AKfycbycY2Q4piBYV3-x_x-kwa7clFMHrM_kxf7rAZmNbSbKMt3J92P_clM7joz-GgHGKdZkCA/exec';
+        
+        // Global variable to hold data for sorting without needing to re-download it
+        let globalStudentDataArray = [];
 
         // --- Sidebar Menu Toggle Logic ---
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
-            
             if (window.innerWidth <= 768) {
-                // Mobile behavior: Slide over
                 sidebar.classList.toggle('mobile-open');
                 overlay.classList.toggle('active');
             } else {
-                // Desktop behavior: Push left
                 sidebar.classList.toggle('minimized');
             }
         }
@@ -268,26 +280,34 @@
             
             document.getElementById(tabId).classList.add('active');
             btnElement.classList.add('active');
-            
-            // Update Title
             document.getElementById('viewTitle').innerText = tabId === 'entry' ? 'Leave Entry' : 'Leave Records';
 
-            // Auto-close sidebar on mobile after clicking a link
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('mobile-open');
                 document.getElementById('sidebarOverlay').classList.remove('active');
             }
 
-            if(tabId === 'records') {
-                fetchRecords();
-            }
+            if(tabId === 'records') fetchRecords();
         }
 
         function toggleCard(cardElement) {
             cardElement.classList.toggle('open');
         }
 
-        // --- Fetch Data, Check Duplicates, and Build Matchboxes ---
+        // --- DATE FIX FUNCTION (Prevents the '1 day behind' bug) ---
+        function correctTimezoneBug(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return String(dateStr).substring(0, 10);
+            
+            // Forces the date to read exactly what your local timezone says it is
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // --- Data Fetching Logic ---
         function fetchRecords() {
             document.getElementById('loader').style.display = 'block';
             document.getElementById('matchboxGrid').innerHTML = '';
@@ -295,9 +315,7 @@
             fetch(scriptURL)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('loader').style.display = 'none';
-                    const grid = document.getElementById('matchboxGrid');
-                    const studentsData = {};
+                    const studentsDataMap = {};
 
                     data.forEach(row => {
                         const sName = row.studentName || row['Student Name'] || row['studentname'] || 'Unknown';
@@ -306,11 +324,12 @@
                         let sDate = row.startDate || row['Start Date'] || '';
                         let eDate = row.endDate || row['End Date'] || '';
 
-                        if(sDate.length > 10) sDate = sDate.substring(0, 10);
-                        if(eDate.length > 10) eDate = eDate.substring(0, 10);
+                        // Apply the Timezone Bug Fix here
+                        sDate = correctTimezoneBug(sDate);
+                        eDate = correctTimezoneBug(eDate);
 
-                        if (!studentsData[eNo]) {
-                            studentsData[eNo] = {
+                        if (!studentsDataMap[eNo]) {
+                            studentsDataMap[eNo] = {
                                 name: sName,
                                 enrollment: (eNo !== sName) ? eNo : '', 
                                 totalDays: 0,
@@ -331,16 +350,16 @@
                         let isDuplicate = false;
 
                         if (sDate && eDate) {
-                            if (studentsData[eNo].seenDates.has(dateKey)) {
+                            if (studentsDataMap[eNo].seenDates.has(dateKey)) {
                                 isDuplicate = true; 
                             } else {
-                                studentsData[eNo].seenDates.add(dateKey);
-                                studentsData[eNo].totalDays += entryDays; 
+                                studentsDataMap[eNo].seenDates.add(dateKey);
+                                studentsDataMap[eNo].totalDays += entryDays; 
                             }
                         }
 
                         if (sDate || eDate) {
-                            studentsData[eNo].allLeaves.push({
+                            studentsDataMap[eNo].allLeaves.push({
                                 start: sDate,
                                 end: eDate,
                                 days: entryDays,
@@ -349,53 +368,81 @@
                         }
                     });
 
-                    Object.values(studentsData).forEach(student => {
-                        let entriesHTML = '';
-                        
-                        if (student.allLeaves.length === 0) {
-                            entriesHTML = `<div style="font-size: 12px; color: #6b7280; text-align: center; padding: 10px;">No dates logged</div>`;
-                        } else {
-                            student.allLeaves.forEach((leave, index) => {
-                                const boxBorder = leave.isDuplicate ? 'border-left: 3px solid #ef4444;' : 'border-left: 3px solid var(--secondary);';
-                                const titleColor = leave.isDuplicate ? 'color: #ef4444;' : 'color: var(--secondary);';
-                                const textColor = leave.isDuplicate ? 'color: #ef4444; font-weight: 600;' : 'color: #4b5563;';
-                                const dupWarning = leave.isDuplicate ? `<span style="color: #ef4444; margin-left: 5px;">(DUP)</span>` : '';
-
-                                entriesHTML += `
-                                    <div class="entry-item" style="${boxBorder}">
-                                        <div class="entry-header" style="${titleColor}">Rec #${index + 1} (${leave.days}D) ${dupWarning}</div>
-                                        <div class="date-row"><span style="${textColor}">From:</span> <strong style="${textColor}">${leave.start}</strong></div>
-                                        <div class="date-row"><span style="${textColor}">To:</span> <strong style="${textColor}">${leave.end}</strong></div>
-                                    </div>
-                                `;
-                            });
-                        }
-
-                        const card = document.createElement('div');
-                        card.className = 'matchbox-card';
-                        card.setAttribute('onclick', 'toggleCard(this)');
-                        
-                        card.innerHTML = `
-                            <div class="matchbox-header">
-                                <h3>${student.name}</h3>
-                                <span class="enrollment">${student.enrollment}</span>
-                                <div class="days-badge">
-                                    <i class="fas fa-calendar-day"></i> Days: ${student.totalDays}
-                                </div>
-                            </div>
-                            <div class="matchbox-details">
-                                ${entriesHTML}
-                            </div>
-                            <div class="click-hint">Click to expand</div>
-                        `;
-                        
-                        grid.appendChild(card);
-                    });
+                    // Save the processed data globally so we can sort it without re-fetching
+                    globalStudentDataArray = Object.values(studentsDataMap);
+                    
+                    // Turn off loader and build the UI
+                    document.getElementById('loader').style.display = 'none';
+                    renderUI(); 
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
                     document.getElementById('loader').innerText = 'Error loading data. Check console.';
                 });
+        }
+
+        // --- Data Rendering & Sorting Logic ---
+        function renderUI() {
+            const grid = document.getElementById('matchboxGrid');
+            grid.innerHTML = '';
+            
+            // Get the current sort choice from the dropdown
+            const sortMethod = document.getElementById('sortSelector').value;
+            
+            // Sort the array based on user choice
+            let sortedData = [...globalStudentDataArray];
+            sortedData.sort((a, b) => {
+                if (sortMethod === 'nameAsc') return a.name.localeCompare(b.name);
+                if (sortMethod === 'nameDesc') return b.name.localeCompare(a.name);
+                if (sortMethod === 'enrollment') return a.enrollment.localeCompare(b.enrollment);
+                if (sortMethod === 'leavesHigh') return b.totalDays - a.totalDays;
+                if (sortMethod === 'leavesLow') return a.totalDays - b.totalDays;
+                return 0;
+            });
+
+            // Build the HTML boxes
+            sortedData.forEach(student => {
+                let entriesHTML = '';
+                
+                if (student.allLeaves.length === 0) {
+                    entriesHTML = `<div style="font-size: 12px; color: #6b7280; text-align: center; padding: 10px;">No dates logged</div>`;
+                } else {
+                    student.allLeaves.forEach((leave, index) => {
+                        const boxBorder = leave.isDuplicate ? 'border-left: 3px solid #ef4444;' : 'border-left: 3px solid var(--secondary);';
+                        const titleColor = leave.isDuplicate ? 'color: #ef4444;' : 'color: var(--secondary);';
+                        const textColor = leave.isDuplicate ? 'color: #ef4444; font-weight: 600;' : 'color: #4b5563;';
+                        const dupWarning = leave.isDuplicate ? `<span style="color: #ef4444; margin-left: 5px;">(DUP)</span>` : '';
+
+                        entriesHTML += `
+                            <div class="entry-item" style="${boxBorder}">
+                                <div class="entry-header" style="${titleColor}">Rec #${index + 1} (${leave.days}D) ${dupWarning}</div>
+                                <div class="date-row"><span style="${textColor}">From:</span> <strong style="${textColor}">${leave.start}</strong></div>
+                                <div class="date-row"><span style="${textColor}">To:</span> <strong style="${textColor}">${leave.end}</strong></div>
+                            </div>
+                        `;
+                    });
+                }
+
+                const card = document.createElement('div');
+                card.className = 'matchbox-card';
+                card.setAttribute('onclick', 'toggleCard(this)');
+                
+                card.innerHTML = `
+                    <div class="matchbox-header">
+                        <h3>${student.name}</h3>
+                        <span class="enrollment">${student.enrollment}</span>
+                        <div class="days-badge">
+                            <i class="fas fa-calendar-day"></i> Days: ${student.totalDays}
+                        </div>
+                    </div>
+                    <div class="matchbox-details">
+                        ${entriesHTML}
+                    </div>
+                    <div class="click-hint">Click to expand</div>
+                `;
+                
+                grid.appendChild(card);
+            });
         }
 
         // --- Form Submission Logic ---
