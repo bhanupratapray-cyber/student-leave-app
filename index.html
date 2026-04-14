@@ -3,135 +3,430 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Leave Manager</title>
+    <title>College Leave Manager</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; }
-        select, input, button { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { background-color: #007BFF; color: white; border: none; cursor: pointer; margin-top: 10px; }
-        button:hover { background-color: #0056b3; }
+        :root {
+            --primary: #1e3a8a; 
+            --secondary: #3b82f6; 
+            --bg-color: #f3f4f6;
+            --text-dark: #1f2937;
+            --card-bg: #ffffff;
+        }
+
+        body { font-family: 'Poppins', sans-serif; margin: 0; display: flex; background-color: var(--bg-color); color: var(--text-dark); height: 100vh; overflow: hidden; }
+        
+        /* --- Sidebar Navigation --- */
+        .sidebar { width: 280px; background-color: var(--card-bg); box-shadow: 2px 0 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; z-index: 100; transition: all 0.3s ease; }
+        .college-branding { padding: 30px 20px; text-align: center; background: var(--primary); color: white; border-bottom: 4px solid var(--secondary); }
+        .college-branding h2 { margin: 0; font-size: 18px; font-weight: 600; line-height: 1.3; }
+        .college-branding p { margin: 5px 0 0 0; font-size: 14px; color: #bfdbfe; font-weight: 500; }
+        
+        .nav-options { padding: 20px 0; }
+        .nav-btn { padding: 15px 25px; display: block; border: none; background: none; width: 100%; text-align: left; font-size: 16px; font-family: 'Poppins', sans-serif; color: #4b5563; cursor: pointer; transition: 0.2s; border-left: 4px solid transparent; }
+        .nav-btn i { width: 25px; }
+        .nav-btn:hover { background-color: #f9fafb; color: var(--primary); }
+        .nav-btn.active { background-color: #eff6ff; color: var(--primary); border-left: 4px solid var(--secondary); font-weight: 500; }
+
+        /* Desktop Sidebar Minimizing */
+        .sidebar.minimized { margin-left: -280px; }
+
+        /* --- Main Content Area --- */
+        .main-content { flex: 1; overflow-y: auto; padding: 30px; position: relative; transition: all 0.3s ease; }
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Top Bar with Menu Button */
+        .top-bar { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .menu-btn { background: white; border: 1px solid #d1d5db; color: var(--text-dark); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 18px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: 0.2s; }
+        .menu-btn:hover { background: #f9fafb; color: var(--primary); }
+
+        /* --- Matchbox / Folder Grid Styling --- */
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        
+        .matchbox-card { background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 5px solid var(--secondary); cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .matchbox-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
+        
+        .matchbox-header h3 { margin: 0; font-size: 16px; color: var(--text-dark); }
+        .matchbox-header .enrollment { font-size: 12px; color: #6b7280; margin-bottom: 15px; display: block; }
+        
+        .days-badge { display: inline-block; background-color: #dbeafe; color: var(--primary); padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+        
+        /* --- Hidden Details Section --- */
+        .matchbox-details { max-height: 0; opacity: 0; overflow: hidden; transition: all 0.4s ease; border-top: 1px dashed #e5e7eb; margin-top: 10px; padding-top: 0; }
+        .matchbox-card.open .matchbox-details { max-height: 350px; opacity: 1; padding-top: 15px; overflow-y: auto; }
+        
+        .entry-item { background: #f9fafb; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--secondary); }
+        .entry-header { font-size: 11px; color: var(--secondary); font-weight: 600; margin-bottom: 4px; text-transform: uppercase; }
+        .date-row { display: flex; justify-content: space-between; font-size: 13px; color: #4b5563; margin-bottom: 3px; }
+        .date-row strong { color: var(--text-dark); }
+        
+        .click-hint { font-size: 11px; color: #9ca3af; text-align: right; margin-top: 10px; font-style: italic; }
+
+        /* --- Form Styling --- */
+        .form-container { max-width: 500px; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 14px; color: #4b5563; }
+        select, input { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #d1d5db; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 14px; }
+        button[type="submit"] { background-color: var(--primary); color: white; border: none; cursor: pointer; padding: 12px; width: 100%; border-radius: 8px; font-size: 16px; font-weight: 500; transition: 0.3s; margin-top: 10px; }
+        
+        /* Loader */
+        .loader { display: none; text-align: center; padding: 40px; color: #6b7280; font-weight: 500; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--secondary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Background overlay for mobile menu */
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 90; }
+
+        /* ==========================================
+           📱 MOBILE SPECIFIC OPTIMIZATIONS
+           ========================================== */
+        @media (max-width: 768px) {
+            /* 1. Sidebar becomes an overlay slider */
+            .sidebar { position: fixed; height: 100vh; left: -280px; margin-left: 0; box-shadow: 10px 0 15px rgba(0,0,0,0.1); }
+            .sidebar.mobile-open { left: 0; }
+            .sidebar-overlay.active { display: block; }
+            
+            .main-content { padding: 15px; }
+            .top-bar { margin-bottom: 15px; }
+
+            /* 2. Force Matchboxes to 2 per row */
+            .grid-container { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            
+            /* Shrink padding and text to fit 2 boxes properly */
+            .matchbox-card { padding: 12px; }
+            .matchbox-header h3 { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .matchbox-header .enrollment { font-size: 10px; margin-bottom: 8px; }
+            .days-badge { font-size: 10px; padding: 3px 6px; margin-bottom: 5px; }
+            .entry-header { font-size: 9px; }
+            .date-row { font-size: 10px; flex-direction: column; margin-bottom: 6px; }
+            .click-hint { display: none; } /* Hide hint to save space */
+            
+            /* Form adjustments */
+            .form-container { padding: 20px; }
+        }
     </style>
 </head>
 <body>
 
-    <h2>Log Student Leave</h2>
-    
-    <form id="leaveForm">
-        <div class="form-group">
-            <label for="student">Select Student:</label>
-            <select id="student" name="student" required>
-                <option value="" disabled selected>Select a student...</option>
-                
-                <option value="ABHAY SINGH|0706PY231001">ABHAY SINGH (0706PY231001)</option>
-                <option value="ADITYA PRAJAPATI|0706PY231004">ADITYA PRAJAPATI (0706PY231004)</option>
-                <option value="AJIT|0706PY231005">AJIT (0706PY231005)</option>
-                <option value="AKSHIKA SANVANIYA|0706PY231007">AKSHIKA SANVANIYA (0706PY231007)</option>
-                <option value="AMTULLAH BOHRA|0706PY231008">AMTULLAH BOHRA (0706PY231008)</option>
-                <option value="ANKIT KUMAR|0706PY231009">ANKIT KUMAR (0706PY231009)</option>
-                <option value="ASHA GAYARI|0706PY231011">ASHA GAYARI (0706PY231011)</option>
-                <option value="ASHISH MEENA|0706PY231012">ASHISH MEENA (0706PY231012)</option>
-                <option value="ASHISH PRAJAPAT|0706PY231013">ASHISH PRAJAPAT (0706PY231013)</option>
-                <option value="AYUSH|0706PY231014">AYUSH (0706PY231014)</option>
-                <option value="AYUSH PATIDAR|0706PY231015">AYUSH PATIDAR (0706PY231015)</option>
-                <option value="BAHAR|0706PY231016">BAHAR (0706PY231016)</option>
-                <option value="BALLABH PATIDAR|0706PY231017">BALLABH PATIDAR (0706PY231017)</option>
-                <option value="BANTI|0706PY231018">BANTI (0706PY231018)</option>
-                <option value="BHAVESH PATIDAR|0706PY231020">BHAVESH PATIDAR (0706PY231020)</option>
-                <option value="BHERU LAL DANGI|0706PY231021">BHERU LAL DANGI (0706PY231021)</option>
-                <option value="BHUMIKA PATIDAR|0706PY231022">BHUMIKA PATIDAR (0706PY231022)</option>
-                <option value="CHETAN GAYRI|0706PY231023">CHETAN GAYRI (0706PY231023)</option>
-                <option value="DEEPAK KUMAR|0706PY231026">DEEPAK KUMAR (0706PY231026)</option>
-                <option value="DEVESH MALI|0706PY231027">DEVESH MALI (0706PY231027)</option>
-                <option value="DHRUV WADHWA|0706PY231029">DHRUV WADHWA (0706PY231029)</option>
-                <option value="DIMPLE GURJAR|0706PY231030">DIMPLE GURJAR (0706PY231030)</option>
-                <option value="GOURAV KUMAR|0706PY231031">GOURAV KUMAR (0706PY231031)</option>
-                <option value="GOUTAM BAIRAGI|0706PY231032">GOUTAM BAIRAGI (0706PY231032)</option>
-                <option value="HARIOM GIRI|0706PY231034">HARIOM GIRI (0706PY231034)</option>
-                <option value="HARISH KUMAR PATIDAR|0706PY231035">HARISH KUMAR PATIDAR (0706PY231035)</option>
-                <option value="JATIN PATIDAR|0706PY231037">JATIN PATIDAR (0706PY231037)</option>
-                <option value="JITENDRA PARETA|0706PY231039">JITENDRA PARETA (0706PY231039)</option>
-                <option value="KAILASH CHAND|0706PY231040">KAILASH CHAND (0706PY231040)</option>
-                <option value="KAPIL|0706PY231043">KAPIL (0706PY231043)</option>
-                <option value="KAPIL SEN|0706PY231044">KAPIL SEN (0706PY231044)</option>
-                <option value="KASHISH BHATI|0706PY231045">KASHISH BHATI (0706PY231045)</option>
-                <option value="KHUSHAL RATHOR|0706PY231046">KHUSHAL RATHOR (0706PY231046)</option>
-                <option value="KOMAL PRAJAPATI|0706PY231047">KOMAL PRAJAPATI (0706PY231047)</option>
-                <option value="LAXMAN SINGH|0706PY231050">LAXMAN SINGH (0706PY231050)</option>
-                <option value="MANTHAN SHARMA|0706PY231052">MANTHAN SHARMA (0706PY231052)</option>
-                <option value="MOHIT MALVIYA|0706PY231055">MOHIT MALVIYA (0706PY231055)</option>
-                <option value="MUSKAN|0706PY231056">MUSKAN (0706PY231056)</option>
-                <option value="NAITIK KUMAR|0706PY231057">NAITIK KUMAR (0706PY231057)</option>
-                <option value="NAVEEN MEENA|0706PY231059">NAVEEN MEENA (0706PY231059)</option>
-                <option value="NIKITA MEWADA|0706PY231060">NIKITA MEWADA (0706PY231060)</option>
-                <option value="NISHA|0706PY231061">NISHA (0706PY231061)</option>
-                <option value="PIYUSH PORWAL|0706PY231064">PIYUSH PORWAL (0706PY231064)</option>
-                <option value="POOJA BHARTONIYA|0706PY231065">POOJA BHARTONIYA (0706PY231065)</option>
-                <option value="PRADEEP SINGH|0706PY231067">PRADEEP SINGH (0706PY231067)</option>
-                <option value="PRITAM PRAJAPAT|0706PY231069">PRITAM PRAJAPAT (0706PY231069)</option>
-                <option value="RADHIKA KUNWAR|0706PY231073">RADHIKA KUNWAR (0706PY231073)</option>
-                <option value="RAHUL KUMAR|0706PY231075">RAHUL KUMAR (0706PY231075)</option>
-                <option value="RAJPAL SINGH|0706PY231076">RAJPAL SINGH (0706PY231076)</option>
-                <option value="RAJVARDHAN SINGH HADA|0706PY231077">RAJVARDHAN SINGH HADA (0706PY231077)</option>
-                <option value="RANU PATIDAR|0706PY231078">RANU PATIDAR (0706PY231078)</option>
-                <option value="RAVINDRA KUMAR|0706PY231081">RAVINDRA KUMAR (0706PY231081)</option>
-                <option value="SAMRATH PATIDAR|0706PY231086">SAMRATH PATIDAR (0706PY231086)</option>
-                <option value="SHUBHAM MALAV|0706PY231089">SHUBHAM MALAV (0706PY231089)</option>
-                <option value="SRISHTI PANCHAL|0706PY231090">SRISHTI PANCHAL (0706PY231090)</option>
-                <option value="SUMIT MEHAR|0706PY231091">SUMIT MEHAR (0706PY231091)</option>
-                <option value="SURAJ SINGH SOLANKI|0706PY231093">SURAJ SINGH SOLANKI (0706PY231093)</option>
-                <option value="SURENDRA SINGH|0706PY231094">SURENDRA SINGH (0706PY231094)</option>
-                <option value="TIKAM SINGH|0706PY231095">TIKAM SINGH (0706PY231095)</option>
-                <option value="VARSHA|0706PY231096">VARSHA (0706PY231096)</option>
-                <option value="VISHAL KUMAR DANGI|0706PY231098">VISHAL KUMAR DANGI (0706PY231098)</option>
-                <option value="YASH NAMDEV|0706PY231100">YASH NAMDEV (0706PY231100)</option>
-                <option value="PRAKASH DHAKAD|0706PY221063">PRAKASH DHAKAD (0706PY221063)</option>
-                <option value="SURYA PRATAP|0706PY221087">SURYA PRATAP (0706PY221087)</option>
-                
-                </select>
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div id="sidebar" class="sidebar">
+        <div class="college-branding">
+            <h2>Dr. Shri R.M.S College of Pharmacy</h2>
+            <p><i class="fas fa-graduation-cap"></i> 6th Semester</p>
+        </div>
+        <div class="nav-options">
+            <button class="nav-btn active" onclick="switchTab('entry', this)">
+                <i class="fas fa-edit"></i> Leave Entry
+            </button>
+            <button class="nav-btn" onclick="switchTab('records', this)">
+                <i class="fas fa-folder-open"></i> Leave Records
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        
+        <div class="top-bar">
+            <button class="menu-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h2 id="viewTitle" style="margin: 0; color: var(--primary);">Leave Entry</h2>
         </div>
 
-        <div class="form-group">
-            <label for="startDate">Leave Start Date:</label>
-            <input type="date" id="startDate" name="startDate" required>
+        <div id="entry" class="view-section active">
+            <div class="form-container">
+                <form id="leaveForm">
+                    <div class="form-group">
+                        <label for="student">Select Student:</label>
+                        <select id="student" name="student" required>
+                            <option value="" disabled selected>Select a student...</option>
+                            <option value="ABHAY SINGH|0706PY231001">ABHAY SINGH (0706PY231001)</option>
+                            <option value="ADITYA PRAJAPATI|0706PY231004">ADITYA PRAJAPATI (0706PY231004)</option>
+                            <option value="AJIT|0706PY231005">AJIT (0706PY231005)</option>
+                            <option value="AKSHIKA SANVANIYA|0706PY231007">AKSHIKA SANVANIYA (0706PY231007)</option>
+                            <option value="AMTULLAH BOHRA|0706PY231008">AMTULLAH BOHRA (0706PY231008)</option>
+                            <option value="ANKIT KUMAR|0706PY231009">ANKIT KUMAR (0706PY231009)</option>
+                            <option value="ASHA GAYARI|0706PY231011">ASHA GAYARI (0706PY231011)</option>
+                            <option value="ASHISH MEENA|0706PY231012">ASHISH MEENA (0706PY231012)</option>
+                            <option value="ASHISH PRAJAPAT|0706PY231013">ASHISH PRAJAPAT (0706PY231013)</option>
+                            <option value="AYUSH|0706PY231014">AYUSH (0706PY231014)</option>
+                            <option value="AYUSH PATIDAR|0706PY231015">AYUSH PATIDAR (0706PY231015)</option>
+                            <option value="BAHAR|0706PY231016">BAHAR (0706PY231016)</option>
+                            <option value="BALLABH PATIDAR|0706PY231017">BALLABH PATIDAR (0706PY231017)</option>
+                            <option value="BANTI|0706PY231018">BANTI (0706PY231018)</option>
+                            <option value="BHAVESH PATIDAR|0706PY231020">BHAVESH PATIDAR (0706PY231020)</option>
+                            <option value="BHERU LAL DANGI|0706PY231021">BHERU LAL DANGI (0706PY231021)</option>
+                            <option value="BHUMIKA PATIDAR|0706PY231022">BHUMIKA PATIDAR (0706PY231022)</option>
+                            <option value="CHETAN GAYRI|0706PY231023">CHETAN GAYRI (0706PY231023)</option>
+                            <option value="DEEPAK KUMAR|0706PY231026">DEEPAK KUMAR (0706PY231026)</option>
+                            <option value="DEVESH MALI|0706PY231027">DEVESH MALI (0706PY231027)</option>
+                            <option value="DHRUV WADHWA|0706PY231029">DHRUV WADHWA (0706PY231029)</option>
+                            <option value="DIMPLE GURJAR|0706PY231030">DIMPLE GURJAR (0706PY231030)</option>
+                            <option value="GOURAV KUMAR|0706PY231031">GOURAV KUMAR (0706PY231031)</option>
+                            <option value="GOUTAM BAIRAGI|0706PY231032">GOUTAM BAIRAGI (0706PY231032)</option>
+                            <option value="HARIOM GIRI|0706PY231034">HARIOM GIRI (0706PY231034)</option>
+                            <option value="HARISH KUMAR PATIDAR|0706PY231035">HARISH KUMAR PATIDAR (0706PY231035)</option>
+                            <option value="JATIN PATIDAR|0706PY231037">JATIN PATIDAR (0706PY231037)</option>
+                            <option value="JITENDRA PARETA|0706PY231039">JITENDRA PARETA (0706PY231039)</option>
+                            <option value="KAILASH CHAND|0706PY231040">KAILASH CHAND (0706PY231040)</option>
+                            <option value="KAPIL|0706PY231043">KAPIL (0706PY231043)</option>
+                            <option value="KAPIL SEN|0706PY231044">KAPIL SEN (0706PY231044)</option>
+                            <option value="KASHISH BHATI|0706PY231045">KASHISH BHATI (0706PY231045)</option>
+                            <option value="KHUSHAL RATHOR|0706PY231046">KHUSHAL RATHOR (0706PY231046)</option>
+                            <option value="KOMAL PRAJAPATI|0706PY231047">KOMAL PRAJAPATI (0706PY231047)</option>
+                            <option value="LAXMAN SINGH|0706PY231050">LAXMAN SINGH (0706PY231050)</option>
+                            <option value="MANTHAN SHARMA|0706PY231052">MANTHAN SHARMA (0706PY231052)</option>
+                            <option value="MOHIT MALVIYA|0706PY231055">MOHIT MALVIYA (0706PY231055)</option>
+                            <option value="MUSKAN|0706PY231056">MUSKAN (0706PY231056)</option>
+                            <option value="NAITIK KUMAR|0706PY231057">NAITIK KUMAR (0706PY231057)</option>
+                            <option value="NAVEEN MEENA|0706PY231059">NAVEEN MEENA (0706PY231059)</option>
+                            <option value="NIKITA MEWADA|0706PY231060">NIKITA MEWADA (0706PY231060)</option>
+                            <option value="NISHA|0706PY231061">NISHA (0706PY231061)</option>
+                            <option value="PIYUSH PORWAL|0706PY231064">PIYUSH PORWAL (0706PY231064)</option>
+                            <option value="POOJA BHARTONIYA|0706PY231065">POOJA BHARTONIYA (0706PY231065)</option>
+                            <option value="PRADEEP SINGH|0706PY231067">PRADEEP SINGH (0706PY231067)</option>
+                            <option value="PRITAM PRAJAPAT|0706PY231069">PRITAM PRAJAPAT (0706PY231069)</option>
+                            <option value="RADHIKA KUNWAR|0706PY231073">RADHIKA KUNWAR (0706PY231073)</option>
+                            <option value="RAHUL KUMAR|0706PY231075">RAHUL KUMAR (0706PY231075)</option>
+                            <option value="RAJPAL SINGH|0706PY231076">RAJPAL SINGH (0706PY231076)</option>
+                            <option value="RAJVARDHAN SINGH HADA|0706PY231077">RAJVARDHAN SINGH HADA (0706PY231077)</option>
+                            <option value="RANU PATIDAR|0706PY231078">RANU PATIDAR (0706PY231078)</option>
+                            <option value="RAVINDRA KUMAR|0706PY231081">RAVINDRA KUMAR (0706PY231081)</option>
+                            <option value="SAMRATH PATIDAR|0706PY231086">SAMRATH PATIDAR (0706PY231086)</option>
+                            <option value="SHUBHAM MALAV|0706PY231089">SHUBHAM MALAV (0706PY231089)</option>
+                            <option value="SRISHTI PANCHAL|0706PY231090">SRISHTI PANCHAL (0706PY231090)</option>
+                            <option value="SUMIT MEHAR|0706PY231091">SUMIT MEHAR (0706PY231091)</option>
+                            <option value="SURAJ SINGH SOLANKI|0706PY231093">SURAJ SINGH SOLANKI (0706PY231093)</option>
+                            <option value="SURENDRA SINGH|0706PY231094">SURENDRA SINGH (0706PY231094)</option>
+                            <option value="TIKAM SINGH|0706PY231095">TIKAM SINGH (0706PY231095)</option>
+                            <option value="VARSHA|0706PY231096">VARSHA (0706PY231096)</option>
+                            <option value="VISHAL KUMAR DANGI|0706PY231098">VISHAL KUMAR DANGI (0706PY231098)</option>
+                            <option value="YASH NAMDEV|0706PY231100">YASH NAMDEV (0706PY231100)</option>
+                            <option value="PRAKASH DHAKAD|0706PY221063">PRAKASH DHAKAD (0706PY221063)</option>
+                            <option value="SURYA PRATAP|0706PY221087">SURYA PRATAP (0706PY221087)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="startDate">Leave Start Date:</label>
+                        <input type="date" id="startDate" name="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">Leave End Date:</label>
+                        <input type="date" id="endDate" name="endDate" required>
+                    </div>
+                    <button type="submit"><i class="fas fa-paper-plane"></i> Submit Leave</button>
+                </form>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="endDate">Leave End Date:</label>
-            <input type="date" id="endDate" name="endDate" required>
+        <div id="records" class="view-section">
+            <div style="margin-bottom: 20px;">
+                <button onclick="fetchRecords()" style="background: white; border: 1px solid #d1d5db; padding: 8px 15px; border-radius: 6px; cursor: pointer; width: 100%; font-family: 'Poppins', sans-serif;"><i class="fas fa-sync-alt"></i> Refresh Data</button>
+            </div>
+
+            <div id="loader" class="loader">
+                <div class="spinner"></div>
+                Loading student records...
+            </div>
+
+            <div id="matchboxGrid" class="grid-container">
+                </div>
         </div>
 
-        <button type="submit">Submit Leave</button>
-    </form>
+    </div>
 
     <script>
+        // Your active Google Apps Script Web App URL
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbycY2Q4piBYV3-x_x-kwa7clFMHrM_kxf7rAZmNbSbKMt3J92P_clM7joz-GgHGKdZkCA/exec';
+
+        // --- Sidebar Menu Toggle Logic ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (window.innerWidth <= 768) {
+                // Mobile behavior: Slide over
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('active');
+            } else {
+                // Desktop behavior: Push left
+                sidebar.classList.toggle('minimized');
+            }
+        }
+
+        // --- UI Navigation Logic ---
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+            
+            // Update Title
+            document.getElementById('viewTitle').innerText = tabId === 'entry' ? 'Leave Entry' : 'Leave Records';
+
+            // Auto-close sidebar on mobile after clicking a link
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('mobile-open');
+                document.getElementById('sidebarOverlay').classList.remove('active');
+            }
+
+            if(tabId === 'records') {
+                fetchRecords();
+            }
+        }
+
+        function toggleCard(cardElement) {
+            cardElement.classList.toggle('open');
+        }
+
+        // --- Fetch Data, Check Duplicates, and Build Matchboxes ---
+        function fetchRecords() {
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('matchboxGrid').innerHTML = '';
+
+            fetch(scriptURL)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loader').style.display = 'none';
+                    const grid = document.getElementById('matchboxGrid');
+                    const studentsData = {};
+
+                    data.forEach(row => {
+                        const sName = row.studentName || row['Student Name'] || row['studentname'] || 'Unknown';
+                        const eNo = row.enrollmentNo || row['Enrollment No'] || row['enrollmentno'] || sName;
+                        
+                        let sDate = row.startDate || row['Start Date'] || '';
+                        let eDate = row.endDate || row['End Date'] || '';
+
+                        if(sDate.length > 10) sDate = sDate.substring(0, 10);
+                        if(eDate.length > 10) eDate = eDate.substring(0, 10);
+
+                        if (!studentsData[eNo]) {
+                            studentsData[eNo] = {
+                                name: sName,
+                                enrollment: (eNo !== sName) ? eNo : '', 
+                                totalDays: 0,
+                                allLeaves: [],
+                                seenDates: new Set() 
+                            };
+                        }
+
+                        let entryDays = 0;
+                        if(sDate && eDate) {
+                            const start = new Date(sDate);
+                            const end = new Date(eDate);
+                            entryDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 3600 * 24)) + 1; 
+                            if (isNaN(entryDays) || entryDays < 0) entryDays = 0;
+                        }
+
+                        const dateKey = sDate + "_" + eDate;
+                        let isDuplicate = false;
+
+                        if (sDate && eDate) {
+                            if (studentsData[eNo].seenDates.has(dateKey)) {
+                                isDuplicate = true; 
+                            } else {
+                                studentsData[eNo].seenDates.add(dateKey);
+                                studentsData[eNo].totalDays += entryDays; 
+                            }
+                        }
+
+                        if (sDate || eDate) {
+                            studentsData[eNo].allLeaves.push({
+                                start: sDate,
+                                end: eDate,
+                                days: entryDays,
+                                isDuplicate: isDuplicate
+                            });
+                        }
+                    });
+
+                    Object.values(studentsData).forEach(student => {
+                        let entriesHTML = '';
+                        
+                        if (student.allLeaves.length === 0) {
+                            entriesHTML = `<div style="font-size: 12px; color: #6b7280; text-align: center; padding: 10px;">No dates logged</div>`;
+                        } else {
+                            student.allLeaves.forEach((leave, index) => {
+                                const boxBorder = leave.isDuplicate ? 'border-left: 3px solid #ef4444;' : 'border-left: 3px solid var(--secondary);';
+                                const titleColor = leave.isDuplicate ? 'color: #ef4444;' : 'color: var(--secondary);';
+                                const textColor = leave.isDuplicate ? 'color: #ef4444; font-weight: 600;' : 'color: #4b5563;';
+                                const dupWarning = leave.isDuplicate ? `<span style="color: #ef4444; margin-left: 5px;">(DUP)</span>` : '';
+
+                                entriesHTML += `
+                                    <div class="entry-item" style="${boxBorder}">
+                                        <div class="entry-header" style="${titleColor}">Rec #${index + 1} (${leave.days}D) ${dupWarning}</div>
+                                        <div class="date-row"><span style="${textColor}">From:</span> <strong style="${textColor}">${leave.start}</strong></div>
+                                        <div class="date-row"><span style="${textColor}">To:</span> <strong style="${textColor}">${leave.end}</strong></div>
+                                    </div>
+                                `;
+                            });
+                        }
+
+                        const card = document.createElement('div');
+                        card.className = 'matchbox-card';
+                        card.setAttribute('onclick', 'toggleCard(this)');
+                        
+                        card.innerHTML = `
+                            <div class="matchbox-header">
+                                <h3>${student.name}</h3>
+                                <span class="enrollment">${student.enrollment}</span>
+                                <div class="days-badge">
+                                    <i class="fas fa-calendar-day"></i> Days: ${student.totalDays}
+                                </div>
+                            </div>
+                            <div class="matchbox-details">
+                                ${entriesHTML}
+                            </div>
+                            <div class="click-hint">Click to expand</div>
+                        `;
+                        
+                        grid.appendChild(card);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    document.getElementById('loader').innerText = 'Error loading data. Check console.';
+                });
+        }
+
+        // --- Form Submission Logic ---
         document.getElementById('leaveForm').addEventListener('submit', function(e) {
             e.preventDefault(); 
             
-            // This splits the "Name|EnrollmentNumber" value from the dropdown
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            submitBtn.disabled = true;
+
             const studentData = document.getElementById('student').value.split('|');
-            const studentName = studentData[0];
-            const enrollmentNo = studentData[1];
-            
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            
-            // Your live Google Apps Script URL
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbwb8MN_s2XrDWZyhyXQKcxuZo9MRIj_r0OGoLPMgqLhjOrWmuz3Il_LdSkVJAvaGz5ZEQ/exec';
             
             const formData = new URLSearchParams();
-            formData.append('studentName', studentName);
-            formData.append('enrollmentNo', enrollmentNo);
-            formData.append('startDate', startDate);
-            formData.append('endDate', endDate);
+            formData.append('studentName', studentData[0]);
+            formData.append('enrollmentNo', studentData[1]);
+            formData.append('startDate', document.getElementById('startDate').value);
+            formData.append('endDate', document.getElementById('endDate').value);
 
-           // Send the data to Google Sheets
             fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors' })
-                .then(response => {
+                .then(() => {
                     alert('Leave recorded successfully!');
                     document.getElementById('leaveForm').reset();
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Leave';
+                    submitBtn.disabled = false;
                 })
-                .catch(error => console.error('Error!', error.message));
+                .catch(error => {
+                    console.error('Error!', error.message);
+                    alert('Failed to submit. Check connection.');
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Leave';
+                    submitBtn.disabled = false;
+                });
         });
     </script>
 </body>
